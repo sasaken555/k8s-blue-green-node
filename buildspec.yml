@@ -6,8 +6,9 @@ phases:
       - echo "Logging in to Amazon ECR"
       - $(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)
       - IMAGE_TAG_NEW=$CODEBUILD_RESOLVED_SOURCE_VERSION
+      - echo "IMAGE_TAG_NEW --> $IMAGE_TAG_NEW"
       - IMAGE_TAG_OLD=$(git log --pretty=oneline | awk '{print $1}' | awk 'NR==2')
-      - echo IMAGE_TAG_NEW --> $IMAGE_TAG_NEW , IMAGE_TAG_OLD --> $IMAGE_TAG_OLD
+      - echo "IMAGE_TAG_OLD --> $IMAGE_TAG_OLD"
   build: 
     commands:
       - echo "Build started on `date`"

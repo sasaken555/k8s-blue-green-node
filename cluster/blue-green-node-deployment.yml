@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: blue-green-node-dondoko
+  name: blue-green-node-{IMAGE_TAG_NEW}
   labels:
     app: blue-green-node
 spec:

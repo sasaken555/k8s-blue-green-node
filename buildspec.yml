@@ -7,7 +7,7 @@ phases:
       - $(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)
       - IMAGE_TAG_NEW=$CODEBUILD_RESOLVED_SOURCE_VERSION
       - echo "IMAGE_TAG_NEW --> $IMAGE_TAG_NEW"
-      - IMAGE_TAG_OLD=$(aws ecr list-images --repository-name $IMAGE_REPO_NAME --query "imageIds[*].imageTag" | awk 'NR==2')
+      - IMAGE_TAG_OLD=$(aws ecr list-images --repository-name $IMAGE_REPO_NAME --query "imageIds[*].imageTag" --output text | awk 'NR==2')
       - echo "IMAGE_TAG_OLD --> $IMAGE_TAG_OLD"
   build: 
     commands:
@@ -28,7 +28,7 @@ phases:
       - find cluster/*.yml | xargs sed -i "s/{IMAGE_TAG_NEW}/$IMAGE_TAG_NEW/g"
       - find cluster/*.yml | xargs sed -i "s/{IMAGE_TAG_OLD}/$IMAGE_TAG_OLD/g"
       - echo "Push Kubernetes Object Definitions..."
-      - aws s3 cp src/cluster $AWS_S3_BUCKET --recursive --exclude "*" --include "*.yml" --debug
+      - aws s3 cp cluster $AWS_S3_BUCKET --recursive --exclude "*" --include "*.yml" --debug
 artifacts:
   base-directory: '.'
   files:

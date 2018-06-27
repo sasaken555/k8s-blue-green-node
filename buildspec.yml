@@ -1,0 +1,32 @@
+version: 0.2
+
+phases:
+  pre_build:
+    commands: 
+      - echo "Logging in to Amazon ECR"
+      - $(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)
+      - IMAGE_TAG_NEW=$CODEBUILD_RESOLVED_SOURCE_VERSION
+      - IMAGE_TAG_OLD=$(git log --pretty=oneline | awk '{print $1}' | awk 'NR==2')
+  build: 
+    commands:
+      - echo "Build started on `date`"
+      - echo "Building the Docker image ..."
+      - docker build -t $IMAGE_REPO_NAME:latest .
+      - docker tag $IMAGE_REPO_NAME:latest $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG_NEW
+  post_build: 
+    commands: 
+      - echo "Build complated on `date`"
+      - echo "Push the image to the Amazon ECR..."
+      - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG_NEW
+      - echo "Create Kubernetes Object Definitions..."
+      - find cluster/blue-green-node-deployment.yml | xargs sed -i "s/{AWS_ACCOUNT_ID}/$AWS_ACCOUNT_ID/"
+      - find cluster/blue-green-node-deployment.yml | xargs sed -i "s/{AWS_DEFAULT_REGION}/$AWS_DEFAULT_REGION/"
+      - find cluster/*.yml | xargs sed -i "s/{IMAGE_TAG_NEW}/$IMAGE_TAG_NEW/g"
+      - find cluster/*.yml | xargs sed -i "s/{IMAGE_TAG_OLD}/$IMAGE_TAG_OLD/g"
+      - echo "Push Kubernetes Object Definitions..."
+      - aws s3 cp src/cluster $AWS_S3_BUCKET --recursive --exclude "*" --include "*.yml" --debug
+artifacts:
+  base-directory: '.'
+  files:
+    - 'build.end'
+discard-paths: yes

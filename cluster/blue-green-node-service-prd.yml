@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: blue-green-node
+  labels:
+    app: blue-green-node
+    isProduction: "true"
+spec:
+  ports:
+  - name: blue-green-node
+    port: 80
+    protocol: TCP
+    targetPort: 3000
+  selector:
+    app: blue-green-node
+    version: {IMAGE_TAG_NEW}
+  type: LoadBalancer

@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: blue-green-node-dondoko
+  labels:
+    app: blue-green-node
+spec:
+  replica: 2
+  selector:
+    matchLabels:
+      app: blue-green-node
+      version: {IMAGE_TAG_NEW}
+  strategy: 
+    type: RollingUpdate
+  template:
+    metadata:
+      name: blue-green-node
+      labels:
+        app: blue-green-node
+        version: {IMAGE_TAG_NEW}
+    spec:
+      containers:
+      - image: {AWS_ACCOUNT_ID}.dkr.ecr.{AWS_DEFAULT_REGION}.amazonaws.com/blue-green-node:{IMAGE_TAG_NEW}
+        name: blue-green-node

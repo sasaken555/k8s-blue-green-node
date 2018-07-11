@@ -20,5 +20,5 @@ spec:
         version: {IMAGE_TAG_NEW}
     spec:
       containers:
-      - image: {AWS_ACCOUNT_ID}.dkr.ecr.{AWS_DEFAULT_REGION}.amazonaws.com/blue-green-node:{IMAGE_TAG_NEW}
+      - image: {AWS_ACCOUNT_ID}.dkr.ecr.{AWS_DEFAULT_REGION}.amazonaws.com/k8s-blue-green-node:{IMAGE_TAG_NEW}
         name: blue-green-node
